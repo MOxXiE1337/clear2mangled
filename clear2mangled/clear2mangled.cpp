@@ -265,15 +265,24 @@ int main(int argc, char* argv[])
 	if (program.is_used("name_va") && !program.is_used("--base") && !program.is_used("--rva"))
 	{
 		// search sub strings first
+		bool flag0 = false; // idk how to name it :)
+		bool static_function = false;
+
 		std::vector<std::string> substrs{};
 		std::vector<export_function_desc> results{};
 
-		std::regex pattern{ "::[~\\w]+(<\\w+|)" };
+		std::regex pattern{ "::[~\\w]+(<?\\w+)" };
 		std::smatch match{};
 		std::string::const_iterator search_start(name.cbegin());
 
 		while (std::regex_search(search_start, name.cend(), match, pattern))
 		{
+			if (match.str().find("<") == std::string::npos)
+				flag0 = true;
+
+			if (name.find(match.str()) + match.str().size() == name.size())
+				static_function = true;
+
 			substrs.push_back(match.str());
 			search_start = match.suffix().first;
 		}
@@ -303,16 +312,33 @@ int main(int argc, char* argv[])
 			for (auto& exp : exports)
 			{
 				bool skip = false;
-
+				
+				bool flag1 = false;
+				bool estatic_function = false;
 				std::vector<std::string> esubstrs{};
 				std::smatch ematch{};
 				std::string::const_iterator esearch_start(exp.clear_name.cbegin());
 				while (std::regex_search(esearch_start, exp.clear_name.cend(), ematch, pattern))
 				{
+					if (ematch.str().find("<") == std::string::npos)
+						flag1 = true;
+
+					if (exp.clear_name.find(ematch.str()) + ematch.str().size() == exp.clear_name.size())
+						estatic_function = true;
+
 					esubstrs.push_back(ematch.str());
 					esearch_start = ematch.suffix().first;
 				}
 
+				if (flag0 != flag1)
+					continue;
+
+				if (!static_function)
+				{
+					if (estatic_function)
+						continue;
+				}
+					
 				for (auto& i : substrs)
 				{
 					bool found_in_esubstrs = false;
