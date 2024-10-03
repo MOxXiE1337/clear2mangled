@@ -268,7 +268,7 @@ int main(int argc, char* argv[])
 		std::vector<std::string> substrs{};
 		std::vector<export_function_desc> results{};
 
-		std::regex pattern{ "::[~\\w]+<\\w+" };
+		std::regex pattern{ "::[~\\w]+(<\\w+|)" };
 		std::smatch match{};
 		std::string::const_iterator search_start(name.cbegin());
 
@@ -313,12 +313,18 @@ int main(int argc, char* argv[])
 					esearch_start = ematch.suffix().first;
 				}
 
-				if (esubstrs.size() != substrs.size())
-					continue;
-				
-				for (int i = 0; i < esubstrs.size(); i++)
+				for (auto& i : substrs)
 				{
-					if (esubstrs[i] != substrs[i])
+					bool found_in_esubstrs = false;
+					for (auto& j : esubstrs)
+					{
+						if (i == j)
+						{
+							found_in_esubstrs = true;
+							break;
+						}
+					}
+					if (!found_in_esubstrs)
 					{
 						skip = true;
 						break;
@@ -328,11 +334,8 @@ int main(int argc, char* argv[])
 				if (skip)
 					continue;
 
-				if (levenshtein_distance(exp.clear_name, name) < 100)
-				{
-					results.push_back(exp);
-					found = true;
-				}
+				results.push_back(exp);
+				found = true;
 			}
 
 			if (!found)
