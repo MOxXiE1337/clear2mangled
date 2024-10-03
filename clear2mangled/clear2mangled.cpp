@@ -315,8 +315,11 @@ int main(int argc, char* argv[])
 				if (skip)
 					continue;
 
-				found = true;
-				results.push_back(exp);
+				if (levenshtein_distance(exp.clear_name, name) < 100)
+				{
+					results.push_back(exp);
+					found = true;
+				}
 			}
 
 			if (!found)
