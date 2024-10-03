@@ -7,4 +7,5 @@ When u need to handle these export shits copied from windbg:
 
 not stable though, but useful :)
 
-![image](https://github.com/user-attachments/assets/9d28710d-d665-48fb-8cf9-262561ddb073)
+![image](https://github.com/user-attachments/assets/42dad368-786f-491b-9408-7911b9038c99)
+
