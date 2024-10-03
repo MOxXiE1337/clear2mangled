@@ -268,7 +268,7 @@ int main(int argc, char* argv[])
 		std::vector<std::string> substrs{};
 		std::vector<export_function_desc> results{};
 
-		std::regex pattern{ "::\\w+" };
+		std::regex pattern{ "::[~\\w]+<\\w+" };
 		std::smatch match{};
 		std::string::const_iterator search_start(name.cbegin());
 
@@ -304,9 +304,21 @@ int main(int argc, char* argv[])
 			{
 				bool skip = false;
 
-				for (auto& i : substrs)
+				std::vector<std::string> esubstrs{};
+				std::smatch ematch{};
+				std::string::const_iterator esearch_start(exp.clear_name.cbegin());
+				while (std::regex_search(esearch_start, exp.clear_name.cend(), ematch, pattern))
 				{
-					if (exp.clear_name.find(i) == std::string::npos)
+					esubstrs.push_back(ematch.str());
+					esearch_start = ematch.suffix().first;
+				}
+
+				if (esubstrs.size() != substrs.size())
+					continue;
+				
+				for (int i = 0; i < esubstrs.size(); i++)
+				{
+					if (esubstrs[i] != substrs[i])
 					{
 						skip = true;
 						break;
