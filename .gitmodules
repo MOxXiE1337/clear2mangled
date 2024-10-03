@@ -1,0 +1,9 @@
+[submodule "libpe"]
+	path = libpe
+	url = https://github.com/jovibor/libpe.git
+[submodule "jsoncpp"]
+	path = jsoncpp
+	url = https://github.com/open-source-parsers/jsoncpp.git
+[submodule "argparse"]
+	path = argparse
+	url = https://github.com/p-ranav/argparse.git

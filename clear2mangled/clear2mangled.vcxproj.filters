@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Sources\jsoncpp">
+      <UniqueIdentifier>{13eb9205-f348-46eb-83a7-de060d8257a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules">
+      <UniqueIdentifier>{9cbd2657-88e7-45f6-bfc4-19cfecc069eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\jsoncpp">
+      <UniqueIdentifier>{6a3f1d26-b79f-4986-bdfc-ab02dec0e9c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\argparse">
+      <UniqueIdentifier>{becfcf69-7536-4323-bf60-3570e3c63c03}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="clear2mangled.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libpe\libpe\libpe.ixx">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jsoncpp\src\lib_json\json_reader.cpp">
+      <Filter>Sources\jsoncpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jsoncpp\src\lib_json\json_value.cpp">
+      <Filter>Sources\jsoncpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jsoncpp\src\lib_json\json_writer.cpp">
+      <Filter>Sources\jsoncpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\argparse\module\argparse.cppm">
+      <Filter>Modules</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\jsoncpp\src\lib_json\json_tool.h">
+      <Filter>Sources\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jsoncpp\include\json\allocator.h">
+      <Filter>Headers\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jsoncpp\include\json\assertions.h">
+      <Filter>Headers\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jsoncpp\include\json\config.h">
+      <Filter>Headers\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jsoncpp\include\json\forwards.h">
+      <Filter>Headers\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jsoncpp\include\json\json.h">
+      <Filter>Headers\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jsoncpp\include\json\json_features.h">
+      <Filter>Headers\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jsoncpp\include\json\reader.h">
+      <Filter>Headers\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jsoncpp\include\json\value.h">
+      <Filter>Headers\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jsoncpp\include\json\version.h">
+      <Filter>Headers\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jsoncpp\include\json\writer.h">
+      <Filter>Headers\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\argparse\include\argparse\argparse.hpp">
+      <Filter>Headers\argparse</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\jsoncpp\src\lib_json\json_valueiterator.inl">
+      <Filter>Sources\jsoncpp</Filter>
+    </None>
+  </ItemGroup>
+</Project>
