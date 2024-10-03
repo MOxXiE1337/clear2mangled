@@ -1,3 +1,9 @@
-THIS IS NOT STABLE, BETTER USE --base OR --rva OPTION,
 U need to put the undname.exe into the same path of clear2mangled
-![image](https://github.com/user-attachments/assets/2f4352e9-678b-4ad4-8a8f-952312b6d0c9)
+
+Application scenarios:
+When u need to handle these export shits copied from windbg:
+![image](https://github.com/user-attachments/assets/3336089c-5e57-45ca-9468-ca0b1c6f306e)
+
+not stable though, but useful :)
+
+![image](https://github.com/user-attachments/assets/9d28710d-d665-48fb-8cf9-262561ddb073)
