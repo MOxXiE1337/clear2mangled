@@ -238,6 +238,7 @@ int main(int argc, char* argv[])
 		// generate cache
 		if (!std::filesystem::exists(cachepath))
 		{
+			std::println(std::cout, "clear2mangled is generating cache please wait...");
 			if (!generate_names(filepath))
 			{
 				std::println(std::cerr, "failed to generate names");
