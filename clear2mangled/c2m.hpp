@@ -7,13 +7,21 @@
 #include <iostream>
 #include <filesystem>
 
+#define COLOR_RED "\033[0m\033[1;31m"
+#define COLOR_GREEN "\033[0m\033[1;32m"
+#define COLOR_YELLOW "\033[1m\033[1;33m"
+#define COLOR_BLUE "\033[0m\033[1;34m"
+#define COLOR_MAGENTA "\033[0m\033[1;35m"
+#define COLOR_CYAN "\033[0m\033[1;36m"
+#define COLOR_END "\033[0m"
+
 namespace c2m
 {
 	struct DeclarationDetails 
 	{
 		bool CFunction;
 		bool Variable;
-		bool ConstructorFunction;
+		bool ConstructorFunction; // useless
 		bool DestructorFunction;
 
 		std::string Name;
@@ -49,11 +57,13 @@ namespace c2m
 		void LoadExportsFromCacheFile();
 	private:
 		void ParseDeclarationDetails(const std::string& declaration, DeclarationDetails& details);
+		void PrintSearchTargetDetails(DeclarationDetails& details);
+		void PrintExport(Export& exp, uintptr_t baseAddress);
 	public:
 		void LoadFile(const std::filesystem::path& path);
 
-		const Export* GetMangledNameByClearDeclaration(const std::string& declaration) noexcept;
-		const Export* GetMangledNameByAddress(uintptr_t baseAddress, uintptr_t address) noexcept;
-		const Export* GetMangledNameByRVA(uintptr_t rva) noexcept;
+		void PrintMangledNameByClearDeclaration(const std::string& declaration) noexcept;
+		void PrintMangledNameByAddress(uintptr_t baseAddress, uintptr_t address) noexcept;
+		void PrintMangledNameByRVA(uintptr_t rva) noexcept;
 	};
 }

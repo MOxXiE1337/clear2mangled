@@ -229,12 +229,25 @@ namespace c2m
 
 		for (auto& i : root)
 		{
+			DeclarationDetails details{};
+			details.CFunction = i["declaration_details"]["c_function"].asBool();
+			details.Variable = i["declaration_details"]["variable"].asBool();
+			details.ConstructorFunction = i["declaration_details"]["constructor_function"].asBool();
+			details.DestructorFunction = i["declaration_details"]["destructor_function"].asBool();
+			details.Name = i["declaration_details"]["name"].asString();
+
+			for (auto& j : i["declaration_details"]["parentheses_pairs"])
+			{
+				details.ParenthesesPairs.push_back(j.asString());
+			}
+
 			m_exports.push_back(
 				{
 					i["ordinal"].asUInt64(),
 					i["rva"].asUInt(),
 					i["mangled_declaration"].asString(),
-					i["clear_declaration"].asString()
+					i["clear_declaration"].asString(),
+					details
 				}
 			);
 		}
@@ -246,18 +259,23 @@ namespace c2m
 		if (!SearchAllSubStrings(declaration, std::regex{ R"(\(([^()]*(\([^()]*\)[^()]*)*)\))" }, details.ParenthesesPairs))
 		{
 			// no space? 
-			if (HaveSubString(declaration, " "))
+			if (!HaveSubString(declaration, " ") && 
+				!HaveSubString(declaration, "<") && 
+				!HaveSubString(declaration, ">") &&
+				!HaveSubString(declaration, ":"))
 			{
+				details.CFunction = true;
+			}					
+			else
+			{	
 				details.Variable = true; 
 				// the declaration still may be a variable (function pointer)
 				// like std::basic_string<char,std::char_traits<char>,std::allocator<char>> (* ExportedGlobalVariable)(std::basic_iostream<char,std::char_traits<char>> const&)
-			}					
-			else
-				details.CFunction = true;
+			}
 		}
 
 		// extract export name
-		std::regex namePattern{ R"((::| )([\w<> +=+-/\*]+))" };
+		std::regex namePattern{ R"((::| )~?([\w<> +=+-/\*]+))" };
 		if (details.ParenthesesPairs.empty())
 		{
 			if (details.CFunction)
@@ -299,6 +317,25 @@ namespace c2m
 
 	}
 
+	void State::PrintSearchTargetDetails(DeclarationDetails& details)
+	{
+		std::println(std::cout, "Name:                {}", details.Name);
+		std::println(std::cout, "CFunction:           {}", details.CFunction ? "YES" : "NO");
+		std::println(std::cout, "ConstructorFunction: {}", details.ConstructorFunction ? "YES" : "NO");
+		std::println(std::cout, "DestructorFunction:  {}", details.DestructorFunction ? "YES" : "NO");
+		std::println(std::cout, "");
+	}
+
+	void State::PrintExport(Export& exp, uintptr_t baseAddress = -1)
+	{
+		printf(COLOR_BLUE"%d" COLOR_MAGENTA "\t%p" COLOR_CYAN "\t%s" COLOR_END "\t%s\n",
+			exp.Ordinal,
+			(baseAddress == -1) ? exp.Rva : baseAddress + exp.Rva,
+			exp.DeclarationDetails.Variable ? "Variable" : (exp.DeclarationDetails.CFunction ? "C Function" : "C++ Function"),
+			exp.MangledDeclaration.c_str());
+		printf("+-----------------------------------------------" COLOR_YELLOW "%s\n\n" COLOR_END, exp.ClearDeclaration.c_str());
+	}
+
 	void State::LoadFile(const std::filesystem::path& path)
 	{
 		if (!std::filesystem::exists(path))
@@ -324,28 +361,83 @@ namespace c2m
 		}
 	}
 	
-	const Export* State::GetMangledNameByClearDeclaration(const std::string& declaration) noexcept
+	void State::PrintMangledNameByClearDeclaration(const std::string& declaration) noexcept
 	{
+		std::string simplifiedDeclaration = SimplifyDeclaration(declaration);
+		std::println(std::cout, "Debug:               {}", RemoveAngleBrackets(simplifiedDeclaration));
+
 		DeclarationDetails details{};
-		ParseDeclarationDetails(declaration, details);
-		
+		ParseDeclarationDetails(simplifiedDeclaration, details);
+		PrintSearchTargetDetails(details);
 
+		std::vector<Export*> results{};
 
-		return nullptr;
+		for (auto& exp : m_exports)
+		{
+			if (details.Name == exp.DeclarationDetails.Name &&
+				details.CFunction == exp.DeclarationDetails.CFunction &&
+				details.ConstructorFunction == exp.DeclarationDetails.ConstructorFunction &&
+				details.DestructorFunction == exp.DeclarationDetails.DestructorFunction)
+			{
+				results.push_back(&exp);
+			}
+		}
+
+		if (results.empty())
+		{
+			std::println(std::cout, COLOR_RED "mangled name of \"{}\" not found" COLOR_END, declaration);
+		}
+		else
+		{
+			printf(COLOR_GREEN "Ordinal\tRva             \tType    \tName\n" COLOR_END);
+			for (auto& i : results)
+				PrintExport(*i);
+		}
 	}
 
-	const Export* State::GetMangledNameByAddress(uintptr_t baseAddress, uintptr_t address) noexcept
+	void State::PrintMangledNameByAddress(uintptr_t baseAddress, uintptr_t address) noexcept
 	{
 		uintptr_t rva = address - baseAddress;
-		return GetMangledNameByRVA(rva);
-	}
 
-	const Export* State::GetMangledNameByRVA(uintptr_t rva) noexcept
-	{
+		std::vector<Export*> results{};
+
 		for (auto& exp : m_exports) {
 			if (rva == exp.Rva)
-				return &exp;
+				results.push_back(&exp);
 		}
-		return nullptr;
+
+		if (results.empty())
+		{
+			std::println(std::cout, COLOR_RED "mangled name of rva \"{:x}\" not found" COLOR_END, rva);
+		}
+		else
+		{
+			printf(COLOR_GREEN "Ordinal\tVa             \tType    \tName\n" COLOR_END);
+			for (auto& i : results)
+			{
+				PrintExport(*i, baseAddress);
+			}
+		}
+	}
+
+	void State::PrintMangledNameByRVA(uintptr_t rva) noexcept
+	{
+		std::vector<Export*> results{};
+
+		for (auto& exp : m_exports) {
+			if (rva == exp.Rva)
+				results.push_back(&exp);
+		}
+
+		if (results.empty())
+		{
+			std::println(std::cout,COLOR_RED "mangled name of rva \"{:x}\" not found" COLOR_END, rva);
+		}
+		else
+		{
+			printf(COLOR_GREEN "Ordinal\tRva             \tType    \tName\n" COLOR_END);
+			for (auto& i : results)
+				PrintExport(*i);
+		}
 	}
 }
