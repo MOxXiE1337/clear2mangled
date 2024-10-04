@@ -1,4 +1,3 @@
-```markdown
 # clear2mangled
 
 `clear2mangled` is a tool written in C++ that converts C++ symbol declarations copied from tools like Windbg into mangled symbol names. This tool uses the export table of PE files for conversion, aiming to simplify debugging and analysis.
