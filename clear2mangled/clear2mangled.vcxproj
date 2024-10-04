@@ -148,7 +148,8 @@
     <ClCompile Include="..\jsoncpp\src\lib_json\json_value.cpp" />
     <ClCompile Include="..\jsoncpp\src\lib_json\json_writer.cpp" />
     <ClCompile Include="..\libpe\libpe\libpe.ixx" />
-    <ClCompile Include="clear2mangled.cpp" />
+    <ClCompile Include="c2m.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\argparse\include\argparse\argparse.hpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="..\jsoncpp\include\json\version.h" />
     <ClInclude Include="..\jsoncpp\include\json\writer.h" />
     <ClInclude Include="..\jsoncpp\src\lib_json\json_tool.h" />
+    <ClInclude Include="c2m.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\jsoncpp\src\lib_json\json_valueiterator.inl" />

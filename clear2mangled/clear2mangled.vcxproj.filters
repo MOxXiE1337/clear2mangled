@@ -23,7 +23,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="clear2mangled.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="..\libpe\libpe\libpe.ixx">
@@ -40,6 +40,9 @@
     </ClCompile>
     <ClCompile Include="..\argparse\module\argparse.cppm">
       <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="c2m.cpp">
+      <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -78,6 +81,9 @@
     </ClInclude>
     <ClInclude Include="..\argparse\include\argparse\argparse.hpp">
       <Filter>Headers\argparse</Filter>
+    </ClInclude>
+    <ClInclude Include="c2m.hpp">
+      <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
