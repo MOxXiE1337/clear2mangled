@@ -37,7 +37,7 @@ This program can only use fuzzy searching. For example, running the following co
 
 May produce output like this:
 
-```
+```bash
 Debug:               std::basic_ios::clear
 Name:                clear
 CFunction:           NO
@@ -99,9 +99,9 @@ clear2mangled --rva 317D0 ./msvcp140.dll
 
 The first command uses a symbol name copied from Windbg to get the corresponding mangled symbol name.
 
-The second command sets the DLL's ImageBase to `40000000` and retrieves the mangled symbol name at the address `400317D0`.
+The second command sets the DLL's ImageBase to 40000000 and retrieves the mangled symbol name at the address 400317D0.
 
-The third command retrieves the mangled symbol name using the relative virtual address `317D0`.
+The third command retrieves the mangled symbol name using the relative virtual address 317D0.
 
 ## Screenshots
 
@@ -128,5 +128,5 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Contact
 
-For questions or suggestions, please contact [your email](mailto:your.email@example.com).
+For questions or suggestions, please contact [938583253@qq.com](mailto:938583253@qq.com).
 ```
