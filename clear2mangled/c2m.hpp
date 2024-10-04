@@ -15,6 +15,8 @@
 #define COLOR_CYAN "\033[0m\033[1;36m"
 #define COLOR_END "\033[0m"
 
+std::string RunCmd(const std::string& cmd);
+
 namespace c2m
 {
 	struct DeclarationDetails 
@@ -36,8 +38,6 @@ namespace c2m
 		std::string ClearDeclaration;
 		DeclarationDetails DeclarationDetails;
 	};
-
-
 
 	class State
 	{

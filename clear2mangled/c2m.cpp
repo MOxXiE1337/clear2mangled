@@ -180,19 +180,10 @@ namespace c2m
 		{
 			std::string cmd = "undname.exe " + i.strFuncName;
 
-			FILE* fp;
-			if ((fp = _popen(cmd.c_str(), "r")) == NULL)
-				throw std::exception{ "failed to generate process pipe." };;
-
-			memset(buffer, 0, 1024);
-			while (fgets(buffer, 1022, fp) != NULL)
+			try
 			{
-				std::string_view result{ buffer };
+				std::string result = RunCmd(cmd);
 				size_t pos = result.find("is :- \"");
-
-				if (pos == std::string::npos)
-					continue;
-
 				std::string clearDeclaration = SimplifyDeclaration(std::string{ result.substr(pos + 7, result.find_last_of('\"') - pos - 7) });
 				DeclarationDetails details{};
 				ParseDeclarationDetails(clearDeclaration, details);
@@ -207,9 +198,11 @@ namespace c2m
 					}
 				);
 			}
+			catch (const std::exception& err)
+			{
+				throw err;
+			}
 
-			if (_pclose(fp) == -1)
-				throw std::exception{ "failed to close process pipe." };
 		}
 	}
 
@@ -440,4 +433,25 @@ namespace c2m
 				PrintExport(*i);
 		}
 	}
+}
+
+std::string RunCmd(const std::string& cmd)
+{
+	FILE* fp;
+	static char buffer[1024];
+	std::string result;
+	if ((fp = _popen(cmd.c_str(), "r")) == NULL)
+		throw std::exception{ "failed to generate process pipe." };
+
+	memset(buffer, 0, 1024);
+	while (fgets(buffer, 1022, fp) != NULL)
+	{
+		result += buffer;
+		result.push_back('\n');
+	}
+
+	if (_pclose(fp) == -1)
+		throw std::exception{ "failed to close process pipe." };
+
+	return result;
 }
