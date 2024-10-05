@@ -154,6 +154,7 @@ std::basic_ostream<char,std::char_traits<char> >::basic_ostream<char,std::char_t
 { 0x0429a600, GetProcAddress(LoadLibraryA("msvcp140"), "std::basic_istream<char,std::char_traits<char> >::seekg") },
 { 0x0428a520, GetProcAddress(LoadLibraryA("msvcp140"), "std::_Lockit::_Lockit") },
 { 0x0426f270, GetProcAddress(LoadLibraryA("msvcp140"), "std::basic_istream<char,std::char_traits<char> >::~basic_istream<char,std::char_traits<char> >") },
+{ xxx hello world, skip } // invalid line, need to be skipped
 ```
 
 `example.py`:
@@ -163,7 +164,9 @@ import re
 
 # clear2mangle will call this function to process each line (Must defined if --script option is enabled)
 def c2m_input(text):
-   return re.findall(r'0x\w+', text)[0][2:] # return the function virtual address
+   if text.find('skip') != -1:
+      c2m_skippline() # call c2m_skipline to skip current line
+      return ''
    return re.findall(r' ".+"', text)[0][2:-1] # return the function declaration ( please use --base option)
 
 # clear2mangle will call this function for custom output (You can just don't define this function to use the default output)
@@ -177,8 +180,12 @@ def c2m_output(export):
 
 `Because of the python module system please put the script in the same directory with clear2mangle executable`
 
-### Python export class definition (in c2m module)
+### Python function and class definitions
 ```python
+# global
+def c2m_skippline()
+
+# c2m module
 class declaration_details:
    c_function
    constructor_function
