@@ -131,6 +131,8 @@ void ReadFileLines(const std::filesystem::path& path, std::vector<std::string>& 
 	file.close();
 }
 
+bool skipLine = false;
+
 PYBIND11_EMBEDDED_MODULE(c2m, m) {
 	pybind11::class_<c2m::DeclarationDetails>(m, "declaration_details")
 		.def(pybind11::init<bool, bool, bool, bool, std::string>())
@@ -184,6 +186,8 @@ int main(int argc, char* argv[])
 			//std::println(std::cout, "{}", program.get<std::string>("--script"))
 			pymodule = pybind11::module_::import((program.get<std::string>("--script")).c_str());
 
+			pymodule.def("c2m_skipline", []() { skipLine = true; });
+
 			if (!pybind11::hasattr(pymodule, "c2m_input"))
 				throw std::exception{ "function c2m_input not found in script" };
 			
@@ -211,9 +215,14 @@ int main(int argc, char* argv[])
 				ReadFileLines(program.get<std::string>("--file"), lines);
 				for (auto& line : lines)
 				{
+					skipLine = false;
 					std::string result{ line };
 					if (program.is_used("--script"))
 						result = inputFunction(line).cast<std::string>();
+					
+					if (skipLine)
+						continue;
+
 					operation(result);
 				}
 			};
