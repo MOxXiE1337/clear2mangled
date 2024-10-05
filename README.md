@@ -38,7 +38,7 @@ You need to configure the enviroment variable PYTHONHOME to your current python 
 This program can only use fuzzy searching. For example, running the following command:
 
 ```bash
-./clear2mangled.exe --src ./msvcp140.dll -d "std::basic_ios<char,std::char_traits<char> >::clear"
+clear2mangled.exe --src ./msvcp140.dll -d "std::basic_ios<char,std::char_traits<char> >::clear"
 ```
 
 May produce output like this:
@@ -82,7 +82,7 @@ Ordinal Rva                     Type            Name
 ## Usage
 
 ```bash
-./clear2mangled.exe [--help] [--version] --src VAR [--declaration VAR] [--file VAR] [--script VAR] [--va VAR] [--base VAR] [--rva VAR]
+clear2mangled.exe [--help] [--version] --src VAR [--declaration VAR] [--file VAR] [--script VAR] [--va VAR] [--base VAR] [--rva VAR]
 ```
 
   `--src              the source PE file [required]`
@@ -104,13 +104,13 @@ Ordinal Rva                     Type            Name
 ### Process single-lined data
 ```bash
 # Get the corresponding mangled symbol name using a symbol name copied from Windbg
-./clear2mangled.exe --src ./msvcp140.dll 'std::basic_ostream<char,std::char_traits<char> >::basic_ostream<char,std::char_traits<char> >'
+clear2mangled.exe --src ./msvcp140.dll 'std::basic_ostream<char,std::char_traits<char> >::basic_ostream<char,std::char_traits<char> >'
 
 # Set the DLL's imagebase and get the mangled symbol name at a specific address
-./clear2mangled.exe --src ./msvcp140.dll --base 40000000 --va 400317D0
+clear2mangled.exe --src ./msvcp140.dll --base 40000000 --va 400317D0
 
 # Get the mangled symbol name using the relative virtual address
-./clear2mangled.exe --src ./msvcp140.dll --rva 317D0 
+clear2mangled.exe --src ./msvcp140.dll --rva 317D0 
 ```
 
 ### Process multi-lined data
@@ -122,7 +122,7 @@ std::_Lockit::_Lockit
 std::basic_ostream<char,std::char_traits<char> >::basic_ostream<char,std::char_traits<char> >
 ```
 ```bash
-./clear2mangled.exe --src ./msvcp140.dll --file ./example_declarations.txt
+clear2mangled.exe --src ./msvcp140.dll --file ./example_declarations.txt
 ```
 
 `example_vas.txt:`
@@ -133,7 +133,7 @@ std::basic_ostream<char,std::char_traits<char> >::basic_ostream<char,std::char_t
 0426f270
 ```
 ```bash
-./clear2mangled.exe --src ./msvcp140.dll --base 04260000 --file ./example_declarations.txt
+clear2mangled.exe --src ./msvcp140.dll --base 04260000 --file ./example_declarations.txt
 ```
 
 `example_rvas.txt:`
@@ -144,7 +144,7 @@ std::basic_ostream<char,std::char_traits<char> >::basic_ostream<char,std::char_t
 0f270
 ```
 ```bash
-./clear2mangled.exe --src ./msvcp140.dll --rva --file ./example_declarations.txt
+clear2mangled.exe --src ./msvcp140.dll --rva --file ./example_declarations.txt
 ```
 
 ### Use python script to process complex data
@@ -175,7 +175,7 @@ def c2m_output(export):
 ```
 
 ```bash
-./clear2mangled.exe --src ./msvcp140.dll --file ./example.txt --script example
+clear2mangled.exe --src ./msvcp140.dll --file ./example.txt --script example
 ```
 
 `Because of the python module system please put the script in the same directory with clear2mangle executable`
