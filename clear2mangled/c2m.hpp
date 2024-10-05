@@ -5,6 +5,7 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include <functional>
 #include <filesystem>
 
 #define COLOR_RED "\033[0m\033[1;31m"
@@ -14,8 +15,6 @@
 #define COLOR_MAGENTA "\033[0m\033[1;35m"
 #define COLOR_CYAN "\033[0m\033[1;36m"
 #define COLOR_END "\033[0m"
-
-std::string RunCmd(const std::string& cmd);
 
 namespace c2m
 {
@@ -62,8 +61,8 @@ namespace c2m
 	public:
 		void LoadFile(const std::filesystem::path& path);
 
-		void PrintMangledNameByClearDeclaration(const std::string& declaration) noexcept;
-		void PrintMangledNameByAddress(uintptr_t baseAddress, uintptr_t address) noexcept;
-		void PrintMangledNameByRVA(uintptr_t rva) noexcept;
+		void PrintMangledNameByClearDeclaration(const std::string& declaration, std::function<void(Export*)> outputer = nullptr) noexcept;
+		void PrintMangledNameByAddress(uintptr_t baseAddress, uintptr_t address, std::function<void(Export*)> outputer = nullptr) noexcept;
+		void PrintMangledNameByRVA(uintptr_t rva, std::function<void(Export*)> outputer = nullptr) noexcept;
 	};
 }

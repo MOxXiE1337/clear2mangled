@@ -4,6 +4,27 @@ import libpe;
 
 #include <json/json.h>
 
+std::string RunCmd(const std::string& cmd)
+{
+	FILE* fp;
+	static char buffer[1024];
+	std::string result;
+	if ((fp = _popen(cmd.c_str(), "r")) == NULL)
+		throw std::exception{ "failed to generate process pipe." };
+
+	memset(buffer, 0, 1024);
+	while (fgets(buffer, 1022, fp) != NULL)
+	{
+		result += buffer;
+		result.push_back('\n');
+	}
+
+	if (_pclose(fp) == -1)
+		throw std::exception{ "failed to close process pipe." };
+
+	return result;
+}
+
 bool HaveSubString(const std::string& parentString, const std::string& subString)
 {
 	return parentString.find(subString) != std::string::npos;
@@ -354,14 +375,19 @@ namespace c2m
 		}
 	}
 	
-	void State::PrintMangledNameByClearDeclaration(const std::string& declaration) noexcept
+	void State::PrintMangledNameByClearDeclaration(const std::string& declaration, std::function<void(Export*)> outputer) noexcept
 	{
 		std::string simplifiedDeclaration = SimplifyDeclaration(declaration);
-		std::println(std::cout, "Debug:               {}", RemoveAngleBrackets(simplifiedDeclaration));
+
 
 		DeclarationDetails details{};
 		ParseDeclarationDetails(simplifiedDeclaration, details);
-		PrintSearchTargetDetails(details);
+
+		if (!outputer)
+		{
+			std::println(std::cout, "Debug:               {}", RemoveAngleBrackets(simplifiedDeclaration));
+			PrintSearchTargetDetails(details);
+		}
 
 		std::vector<Export*> results{};
 
@@ -382,13 +408,19 @@ namespace c2m
 		}
 		else
 		{
-			printf(COLOR_GREEN "Ordinal\tRva             \tType    \tName\n" COLOR_END);
+			if(!outputer)
+				printf(COLOR_GREEN "Ordinal\tRva             \tType    \tName\n" COLOR_END);
 			for (auto& i : results)
-				PrintExport(*i);
+			{
+				if (outputer)
+					outputer(i);
+				else
+					PrintExport(*i);
+			}
 		}
 	}
 
-	void State::PrintMangledNameByAddress(uintptr_t baseAddress, uintptr_t address) noexcept
+	void State::PrintMangledNameByAddress(uintptr_t baseAddress, uintptr_t address, std::function<void(Export*)> outputer) noexcept
 	{
 		uintptr_t rva = address - baseAddress;
 
@@ -405,18 +437,23 @@ namespace c2m
 		}
 		else
 		{
-			printf(COLOR_GREEN "Ordinal\tVa             \tType    \tName\n" COLOR_END);
+			if (!outputer)
+				printf(COLOR_GREEN "Ordinal\tVa             \tType    \tName\n" COLOR_END);
+			
 			for (auto& i : results)
 			{
-				PrintExport(*i, baseAddress);
+				if (outputer)
+					outputer(i);
+				else
+					PrintExport(*i, baseAddress);
 			}
 		}
 	}
 
-	void State::PrintMangledNameByRVA(uintptr_t rva) noexcept
+	void State::PrintMangledNameByRVA(uintptr_t rva, std::function<void(Export*)> outputer) noexcept
 	{
 		std::vector<Export*> results{};
-
+	
 		for (auto& exp : m_exports) {
 			if (rva == exp.Rva)
 				results.push_back(&exp);
@@ -428,30 +465,18 @@ namespace c2m
 		}
 		else
 		{
-			printf(COLOR_GREEN "Ordinal\tRva             \tType    \tName\n" COLOR_END);
+			if (!outputer)
+				printf(COLOR_GREEN "Ordinal\tRva             \tType    \tName\n" COLOR_END);
+
 			for (auto& i : results)
-				PrintExport(*i);
+			{
+				if (outputer)
+					outputer(i);
+				else
+					PrintExport(*i);
+			}
 		}
 	}
 }
 
-std::string RunCmd(const std::string& cmd)
-{
-	FILE* fp;
-	static char buffer[1024];
-	std::string result;
-	if ((fp = _popen(cmd.c_str(), "r")) == NULL)
-		throw std::exception{ "failed to generate process pipe." };
 
-	memset(buffer, 0, 1024);
-	while (fgets(buffer, 1022, fp) != NULL)
-	{
-		result += buffer;
-		result.push_back('\n');
-	}
-
-	if (_pclose(fp) == -1)
-		throw std::exception{ "failed to close process pipe." };
-
-	return result;
-}

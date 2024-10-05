@@ -71,16 +71,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)jsoncpp\include;$(SolutionDir)argparse\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)jsoncpp\include;$(SolutionDir)argparse\include;$(SolutionDir)pybind11\include;C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)jsoncpp\include;$(SolutionDir)argparse\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)jsoncpp\include;$(SolutionDir)argparse\include;$(SolutionDir)pybind11\include;C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)jsoncpp\include;$(SolutionDir)argparse\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)jsoncpp\include;$(SolutionDir)argparse\include;$(SolutionDir)pybind11\include;C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)jsoncpp\include;$(SolutionDir)argparse\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)jsoncpp\include;$(SolutionDir)argparse\include;$(SolutionDir)pybind11\include;C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

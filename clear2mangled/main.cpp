@@ -11,6 +11,8 @@
 
 #include <argparse/argparse.hpp>
 #include <json/json.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/embed.h>
 
 #include "c2m.hpp"
 
@@ -27,15 +29,15 @@ enum _C2MMODE
 
 void InitializeCommandLine(argparse::ArgumentParser& program, int argc, char* argv[])
 {
-	program.add_argument("src")
+	program.add_argument("--src")
 		.required()
 		.nargs(1)
 		.help("the source PE file");
 
-	program.add_argument("declaration/va")
+	program.add_argument("-d", "--declaration")
 		.default_value("")
 		.nargs(1)
-		.help("the clear declaration of C++ function/variable or the virtual address of the function/variable (used with --base option)");
+		.help("the clear declaration of C++ function/variable");
 
 	program.add_argument("--file")
 		.default_value("")
@@ -46,6 +48,11 @@ void InitializeCommandLine(argparse::ArgumentParser& program, int argc, char* ar
 		.default_value("")
 		.nargs(1)
 		.help("python script to process the input data (used with --file)");
+
+	program.add_argument("--va")
+		.default_value(0x0)
+		.nargs(1)
+		.help("the function virtual address, used with --base option");
 
 	program.add_argument("--base")
 		.default_value(-1)
@@ -71,19 +78,22 @@ _C2MMODE GetC2mMode(argparse::ArgumentParser& program)
 	if (program.is_used("--base") && program.is_used("--rva"))
 		throw std::exception{ "--base & --rva can't be used together." };
 
-	if (program.is_used("--file") && program.is_used("declaration/va"))
-		throw std::exception{ "--file & declaration/va can't be used together." };
+	if (program.is_used("--file") && program.is_used("--declaration"))
+		throw std::exception{ "--file & --declaration can't be used together." };
 
-	if (program.is_used("--rva") && program.is_used("declaration/va"))
-		throw std::exception{ "--rva & declaration/va can't be used together." };
+	if (program.is_used("--file") && program.is_used("--va"))
+		throw std::exception{ "--file & --va can't be used together." };
+
+	if (program.is_used("--rva") && (program.is_used("--declaration") || program.is_used("--va")))
+		throw std::exception{ "--rva & --declaration can't be used together." };
 
 	if (program.is_used("--base"))
 	{
-		if (program.is_used("declaration/va"))
+		if (program.is_used("--va"))
 			return VIRTUAL_ADDRESS;
 		if (program.is_used("--file"))
 			return FILE_VIRTUAL_ADDRESS;
-		throw std::exception{ "declaration/va: 1 argument(s) expected. 0 provided." };
+		throw std::exception{ "--va: 1 argument(s) expected. 0 provided." };
 	}
 
 	if (program.is_used("--rva"))
@@ -93,7 +103,7 @@ _C2MMODE GetC2mMode(argparse::ArgumentParser& program)
 		return RVA;
 	}
 
-	if (program.is_used("declaration/va"))
+	if (program.is_used("--declaration"))
 	{
 		return DECLARATION;
 	}
@@ -102,7 +112,6 @@ _C2MMODE GetC2mMode(argparse::ArgumentParser& program)
 		if (program.is_used("--file"))
 			return FILE_DECLARATION;
 	}
-
 
 	return UNKNOWN;
 }
@@ -122,6 +131,25 @@ void ReadFileLines(const std::filesystem::path& path, std::vector<std::string>& 
 	file.close();
 }
 
+PYBIND11_EMBEDDED_MODULE(c2m, m) {
+	pybind11::class_<c2m::DeclarationDetails>(m, "declaration_details")
+		.def(pybind11::init<bool, bool, bool, bool, std::string>())
+		.def_readonly("c_function", &c2m::DeclarationDetails::CFunction)
+		.def_readonly("variable", &c2m::DeclarationDetails::Variable)
+		.def_readonly("constructor_function", &c2m::DeclarationDetails::ConstructorFunction)
+		.def_readonly("destructor_function", &c2m::DeclarationDetails::DestructorFunction)
+		.def_readonly("name", &c2m::DeclarationDetails::Name);
+
+
+	pybind11::class_<c2m::Export>(m, "export")
+		.def(pybind11::init<uintptr_t, uintptr_t, std::string, std::string, c2m::DeclarationDetails>())
+		.def_readonly("ordinal", &c2m::Export::Ordinal)
+		.def_readonly("rva", &c2m::Export::Rva)
+		.def_readonly("mangled_declaration", &c2m::Export::MangledDeclaration)
+		.def_readonly("clear_declaration", &c2m::Export::ClearDeclaration)
+		.def_readonly("declaration_details", &c2m::Export::DeclarationDetails);
+}
+
 int main(int argc, char* argv[])
 {
 	std::filesystem::create_directory("cache");
@@ -129,27 +157,90 @@ int main(int argc, char* argv[])
 	c2m::State state{};
 	argparse::ArgumentParser program{ "clear2mangled" };
 	_C2MMODE mode{ UNKNOWN };
-	
+
+	pybind11::scoped_interpreter guard{};
+	pybind11::module_ c2mmodule{};
+	pybind11::module_ pymodule{};
+	pybind11::object inputFunction{};
+	pybind11::object outputFunction{};
+
 	try { 
 		InitializeCommandLine(program, argc, argv);
 		mode = GetC2mMode(program);
 
+		bool useScriptOutput = false;
+
 		if (program.is_used("--script"))
 		{
-			if (!std::filesystem::exists(program.get<std::string>("--script")))
-				throw std::exception{ "script file does not exist" };
+			//if (!std::filesystem::exists(program.get<std::string>("--script")))
+			//	throw std::exception{ "script file does not exist" };
+
+			// load script
+			pybind11::module_ sys = pybind11::module_::import("sys");
+			sys.attr("path").attr("append")("./");
+			c2mmodule = pybind11::module_::import("c2m");
+
+
+			//std::println(std::cout, "{}", program.get<std::string>("--script"))
+			pymodule = pybind11::module_::import((program.get<std::string>("--script")).c_str());
+
+			if (!pybind11::hasattr(pymodule, "c2m_input"))
+				throw std::exception{ "function c2m_input not found in script" };
+			
+			inputFunction = pymodule.attr("c2m_input");
+
+			if (!pybind11::isinstance<pybind11::function>(inputFunction))
+				throw std::exception{ "c2m_input is not a function" };
+
+			if (pybind11::hasattr(pymodule, "c2m_output"))
+			{
+				outputFunction = pymodule.attr("c2m_output");
+				if (!pybind11::isinstance<pybind11::function>(outputFunction))
+					throw std::exception{ "c2m_output is not a function" };
+
+				useScriptOutput = true;
+			}
 		}
 	
-		state.LoadFile(program.get<std::string>("src"));
+		state.LoadFile(program.get<std::string>("--src"));
 
 
 		std::vector<std::string> lines{};
-		std::string input{};
+		auto processLines = [&](std::function<void(const std::string&)> operation)
+			{
+				ReadFileLines(program.get<std::string>("--file"), lines);
+				for (auto& line : lines)
+				{
+					std::string result{ line };
+					if (program.is_used("--script"))
+						result = inputFunction(line).cast<std::string>();
+					operation(result);
+				}
+			};
+		std::function<void(c2m::Export*)> outputer;
+		if (useScriptOutput)
+			outputer = [&](c2m::Export* exp) 
+			{ 
+				pybind11::object dd = c2mmodule.attr("declaration_details")(exp->DeclarationDetails.CFunction,
+																			exp->DeclarationDetails.Variable,
+																			exp->DeclarationDetails.ConstructorFunction,
+																			exp->DeclarationDetails.DestructorFunction,
+																			exp->DeclarationDetails.Name);
+				pybind11::object exportobj = c2mmodule.attr("export")(exp->Ordinal,
+					exp->Rva,
+					exp->MangledDeclaration,
+					exp->ClearDeclaration,
+					exp->DeclarationDetails);
+
+				try { outputFunction(exportobj); }
+				catch (const std::exception& err) { std::println(std::cerr, "{}", err.what()); return -1; }
+				return 0;
+			};
 
 		switch (mode)
 		{
 		case DECLARATION:
-			state.PrintMangledNameByClearDeclaration(program.get<std::string>("declaration/va"));
+			state.PrintMangledNameByClearDeclaration(program.get<std::string>("--declaration"));
 			break;
 		case VIRTUAL_ADDRESS:
 			state.PrintMangledNameByAddress(program.get<uintptr_t>("--base"), std::stoll(program.get<std::string>("declaration/va"), nullptr, 16));
@@ -158,27 +249,16 @@ int main(int argc, char* argv[])
 			state.PrintMangledNameByRVA(program.get<uintptr_t>("--rva"));
 			break;
 		case FILE_DECLARATION:
-			ReadFileLines(program.get<std::string>("--file"), lines);
-			for (auto& line : lines)
-			{
-				if (program.is_used("--script"))
-					input = RunCmd("python \"" + program.get<std::string>("--script") + "\" \"" + line + "\"");
-				else
-					input = line;
-
-				state.PrintMangledNameByClearDeclaration(input);
-			}
+			processLines([&](const std::string& str)
+				{						
+					state.PrintMangledNameByClearDeclaration(str, outputer);
+				});
 			break;
 		case FILE_VIRTUAL_ADDRESS:
 			ReadFileLines(program.get<std::string>("--file"), lines);
 			for (auto& line : lines)
 			{
-				if (program.is_used("--script"))
-					input = RunCmd("python \"" + program.get<std::string>("--script") + "\" \"" + line + "\"");
-				else
-					input = line;
-
-				uintptr_t address = std::stoll(input, nullptr, 16);
+				uintptr_t address = std::stoll(line, nullptr, 16);
 				state.PrintMangledNameByAddress(program.get<uintptr_t>("--base"), address);
 			}
 			break;
@@ -186,11 +266,7 @@ int main(int argc, char* argv[])
 			ReadFileLines(program.get<std::string>("--file"), lines);
 			for (auto& line : lines)
 			{
-				if (program.is_used("--script"))
-					input = RunCmd("python \"" + program.get<std::string>("--script") + "\" \"" + line + "\"");
-				else
-					input = line;
-				uintptr_t rva = std::stoll(input, nullptr, 16);
+					uintptr_t rva = std::stoll(line, nullptr, 16);
 				state.PrintMangledNameByRVA(rva);
 			}
 			break;
