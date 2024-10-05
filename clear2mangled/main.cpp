@@ -276,13 +276,6 @@ int main(int argc, char* argv[])
 					uintptr_t rva = std::stoll(str, nullptr, 16);
 					state.PrintMangledNameByRVA(rva, outputer);
 				});
-
-			ReadFileLines(program.get<std::string>("--file"), lines);
-			for (auto& line : lines)
-			{
-					uintptr_t rva = std::stoll(line, nullptr, 16);
-				state.PrintMangledNameByRVA(rva);
-			}
 			break;
 		default:
 			std::println(std::cerr, "unknown c2m mode.");

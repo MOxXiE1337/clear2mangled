@@ -408,8 +408,6 @@ namespace c2m
 		}
 		else
 		{
-			if(!outputer)
-				printf(COLOR_GREEN "Ordinal\tRva             \tType    \tName\n" COLOR_END);
 			for (auto& i : results)
 			{
 				if (outputer)
@@ -437,9 +435,6 @@ namespace c2m
 		}
 		else
 		{
-			if (!outputer)
-				printf(COLOR_GREEN "Ordinal\tVa             \tType    \tName\n" COLOR_END);
-			
 			for (auto& i : results)
 			{
 				if (outputer)
@@ -465,9 +460,6 @@ namespace c2m
 		}
 		else
 		{
-			if (!outputer)
-				printf(COLOR_GREEN "Ordinal\tRva             \tType    \tName\n" COLOR_END);
-
 			for (auto& i : results)
 			{
 				if (outputer)
