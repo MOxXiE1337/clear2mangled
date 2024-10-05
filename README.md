@@ -10,7 +10,8 @@
 ## Installation
 
 1. Ensure you have Visual Studio and the relevant C++ development tools installed.
-2. Clone this repository:
+2. Ensure you have python installed in your PC
+3. Clone this repository:
 
    ```bash
    git clone https://github.com/yourusername/clear2mangled.git
@@ -23,8 +24,8 @@
    git submodule update --init --recursive
    ```
 
-3. Open the solution file (`clear2mangled.sln`) in Visual Studio, Select x64
-4. Configure the python path (FUCK U PYTHON)
+4. Open the solution file (`clear2mangled.sln`) in Visual Studio, Select x64
+5. Configure the python path (FUCK U PYTHON)
 
 ### Note
 
@@ -79,13 +80,13 @@ Ordinal Rva                     Type            Name
 ## Usage
 
 ```bash
-clear2mangled [--help] [--version] --src VAR [--declaration VAR] [--file VAR] [--script VAR] [--va VAR] [--base VAR] [--rva VAR]
+./clear2mangled.exe [--help] [--version] --src VAR [--declaration VAR] [--file VAR] [--script VAR] [--va VAR] [--base VAR] [--rva VAR]
 ```
 
   `--src              the source PE file [required]`
   
   `-d, --declaration  the clear declaration of C++ function/variable`
-  
+
   `--file             use file to process multi-lined data`
   
   `--script           python script to process the input data and use custom output (used with --file)`
@@ -101,18 +102,94 @@ clear2mangled [--help] [--version] --src VAR [--declaration VAR] [--file VAR] [-
 ### Process single-lined data
 ```bash
 # Get the corresponding mangled symbol name using a symbol name copied from Windbg
-clear2mangled --src ./msvcp140.dll 'std::basic_ostream<char,std::char_traits<char> >::basic_ostream<char,std::char_traits<char> >'
+./clear2mangled.exe --src ./msvcp140.dll 'std::basic_ostream<char,std::char_traits<char> >::basic_ostream<char,std::char_traits<char> >'
 
 # Set the DLL's imagebase and get the mangled symbol name at a specific address
-clear2mangled --src ./msvcp140.dll --base 40000000 --va 400317D0
+./clear2mangled.exe --src ./msvcp140.dll --base 40000000 --va 400317D0
 
 # Get the mangled symbol name using the relative virtual address
-clear2mangled --src ./msvcp140.dll --rva 317D0 
+./clear2mangled.exe --src ./msvcp140.dll --rva 317D0 
 ```
 
 ### Process multi-lined data
-`example.txt:`
+`example_declarations.txt:`
 ```
+std::basic_istream<char,std::char_traits<char> >::tellg
+std::basic_istream<char,std::char_traits<char> >::seekg
+std::_Lockit::_Lockit
+std::basic_ostream<char,std::char_traits<char> >::basic_ostream<char,std::char_traits<char> >
+```
+```bash
+./clear2mangled.exe --src ./msvcp140.dll --file ./example_declarations.txt
+```
+
+`example_vas.txt:`
+```
+0429b690
+0429a600
+0428a520
+0426f270
+```
+```bash
+./clear2mangled.exe --src ./msvcp140.dll --base 04260000 --file ./example_declarations.txt
+```
+
+`example_rvas.txt:`
+```
+3b690
+3a600
+2a520
+0f270
+```
+```bash
+./clear2mangled.exe --src ./msvcp140.dll --rva --file ./example_declarations.txt
+```
+
+### Use python script to process complex data
+`example.txt`:
+```
+{ 0x0429b690, GetProcAddress(LoadLibraryA("msvcp140"), "std::basic_istream<char,std::char_traits<char> >::tellg") },
+{ 0x0429a600, GetProcAddress(LoadLibraryA("msvcp140"), "std::basic_istream<char,std::char_traits<char> >::seekg") },
+{ 0x0428a520, GetProcAddress(LoadLibraryA("msvcp140"), "std::_Lockit::_Lockit") },
+{ 0x0426f270, GetProcAddress(LoadLibraryA("msvcp140"), "std::basic_istream<char,std::char_traits<char> >::~basic_istream<char,std::char_traits<char> >") },
+```
+
+`example.py`:
+```python
+ # use regex library to process text data (each line)
+import re
+
+# clear2mangle will call this function to process each line (Must defined if --script option is enabled)
+def c2m_input(text):
+   return re.findall(r'0x\w+', text)[0][2:] # return the function virtual address
+   return re.findall(r' ".+"', text)[0][2:-1] # return the function declaration ( please use --base option)
+
+# clear2mangle will call this function for custom output (You can just don't define this function to use the default output)
+def c2m_output(export):
+   print(f"{hex(export.rva)}, {export.mangled_declaration}") # print the rva and the mangled declaration
+```
+
+```bash
+./clear2mangled.exe --src ./msvcp140.dll --file ./example.txt --script example
+```
+
+`Because of the python module system please put the script in the same directory with clear2mangle executable`
+
+### Python export class definition (in c2m module)
+```python
+class declaration_details:
+   c_function
+   constructor_function
+   destructor_function
+   variable
+   name
+
+class export:
+   ordianl
+   rva
+   mangled_declaration
+   clear_declaration
+   declaration_details
 ```
 
 ## Contributing
