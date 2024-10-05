@@ -23,16 +23,18 @@
    git submodule update --init --recursive
    ```
 
-3. Open the solution file (`clear2mangled.sln`) in Visual Studio and compile the project.
+3. Open the solution file (`clear2mangled.sln`) in Visual Studio, Select x64
+4. Configure the python path (FUCK U PYTHON)
 
 ### Note
 
-Please place `undname.exe` from the Visual Studio tools directory in the same folder as `clear2mangled.exe` to ensure the program runs correctly.
+Please place `python(311).dll` from the python directory and `undname.exe` from the Visual Studio tools directory in the same folder as `clear2mangled.exe` to ensure the program runs correctly.
+U need to configure the enviroment variable PYTHONHOME to your current python executable path to ensure the python can be loaded correctly.
 
 This program can only use fuzzy searching. For example, running the following command:
 
 ```bash
-./clear2mangled.exe ./msvcp140.dll "std::basic_ios<char,std::char_traits<char> >::clear"
+./clear2mangled.exe --src ./msvcp140.dll -d "std::basic_ios<char,std::char_traits<char> >::clear"
 ```
 
 May produce output like this:
@@ -76,14 +78,16 @@ Ordinal Rva                     Type            Name
 ## Usage
 
 ```bash
-clear2mangled [--help] [--version] [--base VAR] [--rva VAR] file declaration/va
+clear2mangled [--help] [--version] --src VAR [--declaration VAR] [--file VAR] [--script VAR] [--va VAR] [--base VAR] [--rva VAR]
 ```
 
-- `--help`: Display help information.
-- `--version`: Display version information.
-- `--base VAR`: Set the DLL's ImageBase.
-- `--rva VAR`: Specify the address to retrieve (relative virtual address).
-
+  `--src              the source PE file [required]
+  `-d, --declaration  the clear declaration of C++ function/variable
+  `--file             use file to process multi-lined data
+  `--script           python script to process the input data and use custom output (used with --file)
+  `--va               the function virtual address, used with --base option
+  `--base             the base address of the module
+  `--rva              the rva of the function/variable
 ## Examples
 
 ```bash
@@ -102,15 +106,6 @@ The first command uses a symbol name copied from Windbg to get the corresponding
 The second command sets the DLL's ImageBase to `40000000` and retrieves the mangled symbol name at the address `400317D0`.
 
 The third command retrieves the mangled symbol name using the relative virtual address `317D0`.
-
-## Screenshots
-
-Shits generated from windbg
-![image](https://github.com/user-attachments/assets/4d31913c-e488-4d76-8f3d-68e5e7fbe2db)
-
-![image](https://github.com/user-attachments/assets/34d2fcc3-6b10-4abb-9124-1eee20fd835e)
-
-
 
 ## Contributing
 
