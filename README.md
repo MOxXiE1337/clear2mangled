@@ -82,41 +82,38 @@ Ordinal Rva                     Type            Name
 clear2mangled [--help] [--version] --src VAR [--declaration VAR] [--file VAR] [--script VAR] [--va VAR] [--base VAR] [--rva VAR]
 ```
 
-  `--src              the source PE file [required]
+  `--src              the source PE file [required]`
   
-  `-d, --declaration  the clear declaration of C++ function/variable
+  `-d, --declaration  the clear declaration of C++ function/variable`
   
-  `--file             use file to process multi-lined data
+  `--file             use file to process multi-lined data`
   
-  `--script           python script to process the input data and use custom output (used with --file)
+  `--script           python script to process the input data and use custom output (used with --file)`
   
-  `--va               the function virtual address, used with --base option
+  `--va               the function virtual address, used with --base option`
   
-  `--base             the base address of the module
+  `--base             the base address of the module`
   
-  `--rva              the rva of the function/variable
+  `--rva              the rva of the function/variable`
   
 ## Examples
 
 ### Process single-lined data
 ```bash
 # Get the corresponding mangled symbol name using a symbol name copied from Windbg
-clear2mangled ./msvcp140.dll 'std::basic_ostream<char,std::char_traits<char> >::basic_ostream<char,std::char_traits<char> >'
+clear2mangled --src ./msvcp140.dll 'std::basic_ostream<char,std::char_traits<char> >::basic_ostream<char,std::char_traits<char> >'
 
-# Set the DLL's ImageBase and get the mangled symbol name at a specific address
-clear2mangled --base 40000000 --rva 400317D0 ./msvcp140.dll
+# Set the DLL's imagebase and get the mangled symbol name at a specific address
+clear2mangled --src ./msvcp140.dll --base 40000000 --va 400317D0
 
 # Get the mangled symbol name using the relative virtual address
-clear2mangled --rva 317D0 ./msvcp140.dll
+clear2mangled --src ./msvcp140.dll --rva 317D0 
 ```
 
-The first command uses a symbol name copied from Windbg to get the corresponding mangled symbol name.
-
-The second command sets the DLL's ImageBase to `40000000` and retrieves the mangled symbol name at the address `400317D0`.
-
-The third command retrieves the mangled symbol name using the relative virtual address `317D0`.
-
 ### Process multi-lined data
+`example.txt:`
+```
+```
 
 ## Contributing
 
