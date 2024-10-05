@@ -1,6 +1,8 @@
 # clear2mangled
 
-`clear2mangled` is a tool written in C++ that converts C++ symbol declarations copied from tools like Windbg into mangled symbol names. This tool uses the export table of PE files for conversion, aiming to simplify debugging and analysis.
+`clear2mangled` is a tool written in C++ that converts C++ symbol declarations copied from tools like Windbg into mangled symbol names. 
+
+This tool uses the export table of PE files for conversion, aiming to simplify debugging and analysis.
 
 ## Features
 
@@ -191,6 +193,11 @@ class export:
    clear_declaration
    declaration_details
 ```
+
+## Screenshots
+![image](https://github.com/user-attachments/assets/5eb794c8-5ac4-41f3-b48f-56035b7c419b)
+![image](https://github.com/user-attachments/assets/66bcab8f-1689-448c-824c-dcc28a094554)
+![image](https://github.com/user-attachments/assets/e399d5e3-713c-4eea-81d8-fcb2b70878ab)
 
 ## Contributing
 
