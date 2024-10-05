@@ -47,7 +47,7 @@ void InitializeCommandLine(argparse::ArgumentParser& program, int argc, char* ar
 	program.add_argument("--script")
 		.default_value("")
 		.nargs(1)
-		.help("python script to process the input data (used with --file)");
+		.help("python script to process the input data and use custom output (used with --file)");
 
 	program.add_argument("--va")
 		.default_value(0x0)
