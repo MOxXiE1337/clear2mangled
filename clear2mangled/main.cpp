@@ -243,7 +243,7 @@ int main(int argc, char* argv[])
 			state.PrintMangledNameByClearDeclaration(program.get<std::string>("--declaration"));
 			break;
 		case VIRTUAL_ADDRESS:
-			state.PrintMangledNameByAddress(program.get<uintptr_t>("--base"), std::stoll(program.get<std::string>("declaration/va"), nullptr, 16));
+			state.PrintMangledNameByAddress(program.get<uintptr_t>("--base"), std::stoll(program.get<std::string>("--va"), nullptr, 16));
 			break;
 		case RVA:
 			state.PrintMangledNameByRVA(program.get<uintptr_t>("--rva"));
@@ -255,14 +255,19 @@ int main(int argc, char* argv[])
 				});
 			break;
 		case FILE_VIRTUAL_ADDRESS:
-			ReadFileLines(program.get<std::string>("--file"), lines);
-			for (auto& line : lines)
-			{
-				uintptr_t address = std::stoll(line, nullptr, 16);
-				state.PrintMangledNameByAddress(program.get<uintptr_t>("--base"), address);
-			}
+			processLines([&](const std::string& str)
+				{
+					uintptr_t address = std::stoll(str, nullptr, 16);
+					state.PrintMangledNameByAddress(program.get<uintptr_t>("--base"), address, outputer);
+				});
 			break;
 		case FILE_RVA:
+			processLines([&](const std::string& str)
+				{
+					uintptr_t rva = std::stoll(str, nullptr, 16);
+					state.PrintMangledNameByRVA(rva, outputer);
+				});
+
 			ReadFileLines(program.get<std::string>("--file"), lines);
 			for (auto& line : lines)
 			{
