@@ -1,6 +1,6 @@
 # clear2mangled
 
-`clear2mangled` is a tool written in C++ 20 (libpe requires actually C++ 17) that converts C++ symbol declarations copied from tools like Windbg into mangled symbol names or directly extract mangled name from DLL via rva or va. 
+`clear2mangled` is a tool written in C++ 20 (libpe requires, actually C++ 17) that converts C++ symbol declarations copied from tools like Windbg into mangled symbol names or directly extract mangled name from DLL via rva or va. 
 
 This tool uses the export table of PE files for conversion, aiming to simplify debugging and analysis.
 
