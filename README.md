@@ -1,6 +1,6 @@
 # clear2mangled
 
-`clear2mangled` is a tool written in C++ that converts C++ symbol declarations copied from tools like Windbg into mangled symbol names. 
+`clear2mangled` is a tool written in C++ 20 (libpe required actually C++ 17) that converts C++ symbol declarations copied from tools like Windbg into mangled symbol names. 
 
 This tool uses the export table of PE files for conversion, aiming to simplify debugging and analysis.
 
@@ -104,7 +104,7 @@ clear2mangled.exe [--help] [--version] --src VAR [--declaration VAR] [--file VAR
 ### Process single-lined data
 ```bash
 # Get the corresponding mangled symbol name using a symbol name copied from Windbg
-clear2mangled.exe --src ./msvcp140.dll 'std::basic_ostream<char,std::char_traits<char> >::basic_ostream<char,std::char_traits<char> >'
+clear2mangled.exe --src ./msvcp140.dll -d 'std::basic_ostream<char,std::char_traits<char> >::basic_ostream<char,std::char_traits<char> >'
 
 # Set the DLL's imagebase and get the mangled symbol name at a specific address
 clear2mangled.exe --src ./msvcp140.dll --base 40000000 --va 400317D0
