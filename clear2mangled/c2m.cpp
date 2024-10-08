@@ -404,7 +404,7 @@ namespace c2m
 
 		if (results.empty())
 		{
-			std::println(std::cout, COLOR_RED "mangled name of \"{}\" not found" COLOR_END, declaration);
+			std::println(std::cout, COLOR_RED "mangled declaration of \"{}\" not found" COLOR_END, declaration);
 		}
 		else
 		{
@@ -431,7 +431,7 @@ namespace c2m
 
 		if (results.empty())
 		{
-			std::println(std::cout, COLOR_RED "mangled name of rva \"{:x}\" not found" COLOR_END, rva);
+			std::println(std::cout, COLOR_RED "mangled declaration of rva \"{:x}\" not found" COLOR_END, rva);
 		}
 		else
 		{
@@ -456,7 +456,7 @@ namespace c2m
 
 		if (results.empty())
 		{
-			std::println(std::cout,COLOR_RED "mangled name of rva \"{:x}\" not found" COLOR_END, rva);
+			std::println(std::cout,COLOR_RED "mangled declaration of rva \"{:x}\" not found" COLOR_END, rva);
 		}
 		else
 		{
